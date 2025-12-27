@@ -13,3 +13,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByOwnerId(Long ownerId);
 }
 
+
+

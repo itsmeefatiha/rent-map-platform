@@ -14,3 +14,5 @@ public class TenantDto extends UserDto {
     private Double maxBudget;
 }
 
+
+

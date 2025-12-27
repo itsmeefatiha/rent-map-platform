@@ -15,7 +15,7 @@ export const Login = () => {
 
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/map');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }

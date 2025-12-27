@@ -14,3 +14,5 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     boolean existsByTenantIdAndPropertyId(Long tenantId, Long propertyId);
 }
 
+
+

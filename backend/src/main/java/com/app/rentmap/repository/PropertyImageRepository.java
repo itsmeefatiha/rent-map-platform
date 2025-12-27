@@ -12,3 +12,5 @@ public interface PropertyImageRepository extends JpaRepository<PropertyImage, Lo
     void deleteByPropertyId(Long propertyId);
 }
 
+
+

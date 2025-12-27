@@ -28,7 +28,7 @@ export const Register = () => {
 
     try {
       await register(formData);
-      navigate('/');
+      navigate('/map');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }

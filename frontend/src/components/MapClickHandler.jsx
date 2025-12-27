@@ -11,3 +11,5 @@ export const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 
+
+

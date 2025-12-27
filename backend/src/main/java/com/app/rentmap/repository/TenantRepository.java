@@ -11,3 +11,5 @@ public interface TenantRepository extends JpaRepository<Tenant, Long> {
     Optional<Tenant> findByEmail(String email);
 }
 
+
+

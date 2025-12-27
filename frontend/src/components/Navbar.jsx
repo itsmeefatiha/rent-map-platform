@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { ChatDropdown } from './ChatDropdown';
 import { NotificationsDropdown } from './NotificationsDropdown';
+import mapImage from '../assets/images/map.png';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -22,10 +23,7 @@ export const Navbar = () => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="bg-white/10 backdrop-blur-sm p-2 rounded-lg group-hover:bg-white/20 transition-all">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <img src={mapImage} alt="Map" className="w-6 h-6 object-contain" />
               </div>
               <span className="text-2xl font-bold text-white tracking-tight">RentMap</span>
             </Link>
@@ -35,18 +33,22 @@ export const Navbar = () => {
                   Home
                 </Link>
               )}
-              <Link to="/map" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                Explore Map
-              </Link>
-              {user && user.role === 'OWNER' && (
-                <Link to="/publish" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                  Publish
-                </Link>
-              )}
-              {user && user.role === 'TENANT' && (
-                <Link to="/favorites" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
-                  Favorites
-                </Link>
+              {user && (
+                <>
+                  <Link to="/map" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                    Explore Map
+                  </Link>
+                  {user.role === 'OWNER' && (
+                    <Link to="/publish" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Publish
+                    </Link>
+                  )}
+                  {user.role === 'TENANT' && (
+                    <Link to="/favorites" className="px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200">
+                      Favorites
+                    </Link>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -97,9 +99,12 @@ export const Navbar = () => {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-semibold bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-200 backdrop-blur-sm"
+                  className="p-2.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-all duration-200 backdrop-blur-sm"
+                  aria-label="Logout"
                 >
-                  Logout
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
                 </button>
               </>
             ) : (

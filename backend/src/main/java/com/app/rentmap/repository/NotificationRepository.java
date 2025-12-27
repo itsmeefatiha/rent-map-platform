@@ -13,3 +13,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countByTenantIdAndReadFalse(Long tenantId);
 }
 
+
+
