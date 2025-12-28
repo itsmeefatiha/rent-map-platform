@@ -80,12 +80,7 @@ Swagger UI available at: http://localhost:8080/swagger-ui.html
 
 PostgreSQL database is automatically created on first run. Tables are created via JPA auto-ddl.
 
-## Default Configuration
 
-- Database: `rentmap`
-- User: `rentmap`
-- Password: `rentmap123`
-- Port: `5432`
 
 
 
