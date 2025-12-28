@@ -39,7 +39,6 @@ A full-featured web platform for publishing and discovering rental properties us
 ### Prerequisites
 - Java 21
 - Node.js 18+
-- Docker and Docker Compose
 
 ### Backend Setup
 
