@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 export const Register = () => {
+  const { t } = useTranslation();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -30,7 +33,7 @@ export const Register = () => {
       await register(formData);
       navigate('/map');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || t('auth.registrationFailed'));
     }
   };
 
@@ -45,10 +48,10 @@ export const Register = () => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
-              Create Account
+              {t('auth.createAccount')}
             </h2>
             <p className="text-text-secondary dark:text-text-secondary-dark">
-              Join us and start your journey
+              {t('auth.signUpToContinue')}
             </p>
           </div>
 
@@ -65,7 +68,7 @@ export const Register = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                  First Name
+                  {t('auth.firstName')}
                 </label>
                 <input
                   id="firstName"
@@ -73,14 +76,14 @@ export const Register = () => {
                   type="text"
                   required
                   className="input-field"
-                  placeholder="John"
+                  placeholder="Ahmed"
                   value={formData.firstName}
                   onChange={handleChange}
                 />
               </div>
               <div>
                 <label htmlFor="lastName" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                  Last Name
+                  {t('auth.lastName')}
                 </label>
                 <input
                   id="lastName"
@@ -88,7 +91,7 @@ export const Register = () => {
                   type="text"
                   required
                   className="input-field"
-                  placeholder="Doe"
+                  placeholder="Benali"
                   value={formData.lastName}
                   onChange={handleChange}
                 />
@@ -97,7 +100,7 @@ export const Register = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                Email Address
+                {t('auth.email')}
               </label>
               <input
                 id="email"
@@ -105,7 +108,7 @@ export const Register = () => {
                 type="email"
                 required
                 className="input-field"
-                placeholder="you@example.com"
+                placeholder="ahmed.benali@example.ma"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -113,7 +116,7 @@ export const Register = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 id="password"
@@ -137,7 +140,7 @@ export const Register = () => {
                 name="phoneNumber"
                 type="tel"
                 className="input-field"
-                placeholder="+1 (555) 000-0000"
+                placeholder="+212 612 345 678"
                 value={formData.phoneNumber}
                 onChange={handleChange}
               />
@@ -145,7 +148,7 @@ export const Register = () => {
 
             <div>
               <label htmlFor="role" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                I am a
+                {t('auth.role')}
               </label>
               <select
                 id="role"
@@ -154,8 +157,8 @@ export const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="TENANT">Tenant - Looking for properties</option>
-                <option value="OWNER">Owner - List my properties</option>
+                <option value="TENANT">{t('auth.tenant')}</option>
+                <option value="OWNER">{t('auth.owner')}</option>
               </select>
             </div>
 
@@ -163,14 +166,14 @@ export const Register = () => {
               type="submit"
               className="btn-accent w-full"
             >
-              Create Account
+              {t('auth.createAccount')}
             </button>
 
             <div className="text-center pt-4">
               <p className="text-sm text-text-secondary dark:text-text-secondary-dark">
-                Already have an account?{' '}
+                {t('auth.alreadyHaveAccount')}{' '}
                 <Link to="/login" className="font-semibold text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary transition-colors">
-                  Sign in
+                  {t('auth.signIn')}
                 </Link>
               </p>
             </div>

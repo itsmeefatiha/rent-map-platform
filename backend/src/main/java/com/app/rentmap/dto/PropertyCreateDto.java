@@ -51,6 +51,9 @@ public class PropertyCreateDto {
     private Boolean hasFurnished;
     private Boolean petsAllowed;
     private String propertyType;
+    
+    @NotBlank(message = "Rental period is required")
+    private String rentalPeriod; // MONTH, DAY
 
     private List<String> imageUrls;
 }

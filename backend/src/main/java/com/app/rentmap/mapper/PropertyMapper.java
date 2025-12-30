@@ -25,12 +25,16 @@ public interface PropertyMapper {
     @Mapping(target = "hasFurnished", source = "hasFurnished")
     @Mapping(target = "petsAllowed", source = "petsAllowed")
     @Mapping(target = "propertyType", source = "propertyType")
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "averageRating", ignore = true)
+    @Mapping(target = "totalComments", ignore = true)
     PropertyDto toDto(Property property);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "favorites", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "numberOfRooms", source = "numberOfRooms")
@@ -54,5 +58,6 @@ public interface PropertyMapper {
                 .map(img -> img.getImageUrl())
                 .collect(Collectors.toList());
     }
+
 }
 

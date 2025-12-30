@@ -1,13 +1,7 @@
 package com.app.rentmap.service;
 
-import com.app.rentmap.entity.Message;
-import com.app.rentmap.entity.User;
-import com.app.rentmap.repository.MessageRepository;
-import com.app.rentmap.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 /**
  * Service to migrate old messages from owner/tenant structure to sender/receiver structure.
@@ -15,12 +9,7 @@ import java.util.List;
  */
 @Service
 public class MessageMigrationService {
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
-
-    public MessageMigrationService(MessageRepository messageRepository, UserRepository userRepository) {
-        this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
+    public MessageMigrationService() {
     }
 
     /**

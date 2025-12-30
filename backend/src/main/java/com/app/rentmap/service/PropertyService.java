@@ -24,13 +24,16 @@ public class PropertyService {
     private final OwnerRepository ownerRepository;
     private final PropertyMapper propertyMapper;
     private final NotificationService notificationService;
+    private final PropertyCommentService propertyCommentService;
 
     public PropertyService(PropertyRepository propertyRepository, OwnerRepository ownerRepository,
-                          PropertyMapper propertyMapper, NotificationService notificationService) {
+                          PropertyMapper propertyMapper, NotificationService notificationService,
+                          PropertyCommentService propertyCommentService) {
         this.propertyRepository = propertyRepository;
         this.ownerRepository = ownerRepository;
         this.propertyMapper = propertyMapper;
         this.notificationService = notificationService;
+        this.propertyCommentService = propertyCommentService;
     }
 
     @Transactional
@@ -40,6 +43,11 @@ public class PropertyService {
 
         Property property = propertyMapper.toEntity(dto);
         property.setOwner(owner);
+        
+        // Set default rental period if not provided
+        if (property.getRentalPeriod() == null || property.getRentalPeriod().isEmpty()) {
+            property.setRentalPeriod("MONTH");
+        }
 
         if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
             List<PropertyImage> images = new ArrayList<>();
@@ -58,7 +66,9 @@ public class PropertyService {
         
         notificationService.notifyMatchingTenants(saved);
         
-        return propertyMapper.toDto(saved);
+        PropertyDto propertyDto = propertyMapper.toDto(saved);
+        enrichWithComments(propertyDto, saved.getId());
+        return propertyDto;
     }
 
     public Page<PropertyDto> getAllProperties(String region, BigDecimal maxPrice, Pageable pageable) {
@@ -72,25 +82,48 @@ public class PropertyService {
         } else {
             properties = propertyRepository.findAll(pageable);
         }
-        return properties.map(propertyMapper::toDto);
+        return properties.map(property -> {
+            PropertyDto dto = propertyMapper.toDto(property);
+            enrichWithComments(dto, property.getId());
+            return dto;
+        });
     }
 
+    @Transactional(readOnly = true)
     public List<PropertyDto> getAllPropertiesForMap() {
-        List<Property> properties = propertyRepository.findAll();
-        return properties.stream().map(propertyMapper::toDto).toList();
+        List<Property> properties = propertyRepository.findAllWithRelations();
+        return properties.stream().map(property -> {
+            PropertyDto dto = propertyMapper.toDto(property);
+            enrichWithComments(dto, property.getId());
+            return dto;
+        }).toList();
     }
 
+    @Transactional(readOnly = true)
     public PropertyDto getPropertyById(Long id) {
         Property property = propertyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found"));
-        return propertyMapper.toDto(property);
+        PropertyDto dto = propertyMapper.toDto(property);
+        enrichWithComments(dto, id);
+        return dto;
     }
 
     public List<PropertyDto> getPropertiesByOwner(String ownerEmail) {
         Owner owner = ownerRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Owner not found"));
         List<Property> properties = propertyRepository.findByOwnerId(owner.getId());
-        return properties.stream().map(propertyMapper::toDto).toList();
+        return properties.stream().map(property -> {
+            PropertyDto dto = propertyMapper.toDto(property);
+            enrichWithComments(dto, property.getId());
+            return dto;
+        }).toList();
+    }
+
+    private void enrichWithComments(PropertyDto dto, Long propertyId) {
+        var comments = propertyCommentService.getCommentsByProperty(propertyId, null);
+        dto.setComments(comments);
+        dto.setTotalComments(comments.size());
+        dto.setAverageRating(propertyCommentService.getAverageRating(propertyId));
     }
 }
 

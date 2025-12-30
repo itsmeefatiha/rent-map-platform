@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,8 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/properties/**").permitAll()
-                        .requestMatchers("/api/properties").hasRole("OWNER")
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/statistics").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/messages/**").authenticated()

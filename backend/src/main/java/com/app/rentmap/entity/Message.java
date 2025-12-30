@@ -34,11 +34,21 @@ public class Message {
     @Column(nullable = false, length = 2000)
     private String content;
 
+    @Column(nullable = true)
+    private String fileUrl;
+
+    @Column(nullable = true, length = 50)
+    private String messageType; // TEXT, FILE, VOICE
+
     @Column(nullable = false)
     private Boolean read;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private java.util.List<MessageReaction> reactions = new java.util.ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
