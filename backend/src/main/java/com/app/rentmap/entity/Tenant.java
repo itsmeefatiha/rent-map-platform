@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -22,12 +23,15 @@ public class Tenant extends User {
     private Double maxBudget;
 
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
 
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
 }
 

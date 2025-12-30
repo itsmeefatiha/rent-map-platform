@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { usersApi } from '../api/users';
 
 export const Profile = () => {
+  const { t } = useTranslation();
   const { user, updateUser } = useAuth();
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -19,6 +21,7 @@ export const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState(null); // 'success' or 'error'
 
   useEffect(() => {
     if (user) {
@@ -52,26 +55,31 @@ export const Profile = () => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setMessage('Please select an image file');
+      setMessage(t('profile.pleaseSelectImage'));
+      setMessageType('error');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setMessage('File size must be less than 5MB');
+      setMessage(t('profile.fileSizeMustBeLess'));
+      setMessageType('error');
       return;
     }
 
     setUploading(true);
     setMessage('');
+    setMessageType(null);
 
     try {
       const fileUrl = await usersApi.uploadProfilePicture(file);
       setFormData({ ...formData, profilePicture: fileUrl });
       const updatedUser = { ...user, profilePicture: fileUrl };
       updateUser(updatedUser);
-      setMessage('Profile picture updated successfully');
+      setMessage(t('profile.profilePictureUpdated'));
+      setMessageType('success');
     } catch (error) {
-      setMessage('Failed to upload profile picture');
+      setMessage(t('profile.failedToUploadPicture'));
+      setMessageType('error');
       console.error(error);
     } finally {
       setUploading(false);
@@ -85,6 +93,7 @@ export const Profile = () => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setMessageType(null);
 
     try {
       const data = { ...formData };
@@ -95,9 +104,11 @@ export const Profile = () => {
         ? await usersApi.updateOwner(data)
         : await usersApi.updateTenant(data);
       updateUser(updated);
-      setMessage('Profile updated successfully');
+      setMessage(t('profile.profileUpdated'));
+      setMessageType('success');
     } catch (error) {
-      setMessage('Failed to update profile');
+      setMessage(t('profile.failedToUpdate'));
+      setMessageType('error');
       console.error(error);
     } finally {
       setLoading(false);
@@ -106,8 +117,8 @@ export const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
-        <div className="text-gray-600 dark:text-gray-400">Please log in</div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">{t('profile.pleaseLogIn')}</div>
       </div>
     );
   }
@@ -117,11 +128,17 @@ export const Profile = () => {
     : `https://ui-avatars.com/api/?name=${encodeURIComponent((user.firstName || '') + ' ' + (user.lastName || ''))}&background=random&size=200`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">My Profile</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">Manage your account settings and preferences</p>
+          <div className="mb-6">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+              {t('profile.myProfile')}
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              {t('profile.manageAccount')}
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -170,7 +187,7 @@ export const Profile = () => {
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-2">{user.email}</p>
                 <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold">
-                  {user.role}
+                  {user.role === 'OWNER' ? t('auth.owner') : t('auth.tenant')}
                 </span>
               </div>
             </div>
@@ -181,12 +198,12 @@ export const Profile = () => {
             <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200 dark:border-gray-700 space-y-6">
               {message && (
                 <div className={`p-4 rounded-xl flex items-center ${
-                  message.includes('success') 
+                  messageType === 'success'
                     ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
                     : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
                 }`}>
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    {message.includes('success') ? (
+                    {messageType === 'success' ? (
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     ) : (
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -199,7 +216,7 @@ export const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    First Name
+                    {t('profile.firstName')}
                   </label>
                   <input
                     type="text"
@@ -212,7 +229,7 @@ export const Profile = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Last Name
+                    {t('profile.lastName')}
                   </label>
                   <input
                     type="text"
@@ -226,7 +243,7 @@ export const Profile = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Phone Number
+                  {t('profile.phoneNumber')}
                 </label>
                 <input
                   type="tel"
@@ -239,7 +256,7 @@ export const Profile = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Bio
+                  {t('profile.bio')}
                 </label>
                 <textarea
                   name="bio"
@@ -247,7 +264,7 @@ export const Profile = () => {
                   value={formData.bio}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  placeholder="Tell us about yourself..."
+                  placeholder={t('profile.tellAboutYourself')}
                 />
               </div>
 
@@ -256,7 +273,7 @@ export const Profile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Company Name
+                        {t('profile.companyName')}
                       </label>
                       <input
                         type="text"
@@ -268,7 +285,7 @@ export const Profile = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        License Number
+                        {t('profile.licenseNumber')}
                       </label>
                       <input
                         type="text"
@@ -287,7 +304,7 @@ export const Profile = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Preferred Region
+                        {t('profile.preferredRegion')}
                       </label>
                       <input
                         type="text"
@@ -299,7 +316,7 @@ export const Profile = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Max Budget
+                        {t('profile.maxBudget')}
                       </label>
                       <input
                         type="number"
@@ -320,7 +337,7 @@ export const Profile = () => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Updating...' : 'Update Profile'}
+                {loading ? t('profile.updating') : t('profile.updateProfile')}
               </button>
             </form>
           </div>

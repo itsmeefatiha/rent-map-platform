@@ -4,10 +4,12 @@ import com.app.rentmap.dto.PropertyDto;
 import com.app.rentmap.entity.Favorite;
 import com.app.rentmap.entity.Property;
 import com.app.rentmap.entity.Tenant;
+import com.app.rentmap.entity.UserInteraction;
 import com.app.rentmap.mapper.PropertyMapper;
 import com.app.rentmap.repository.FavoriteRepository;
 import com.app.rentmap.repository.PropertyRepository;
 import com.app.rentmap.repository.TenantRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +22,16 @@ public class FavoriteService {
     private final TenantRepository tenantRepository;
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
+    private final RecommendationService recommendationService;
 
     public FavoriteService(FavoriteRepository favoriteRepository, TenantRepository tenantRepository,
-                          PropertyRepository propertyRepository, PropertyMapper propertyMapper) {
+                          PropertyRepository propertyRepository, PropertyMapper propertyMapper,
+                          @Lazy RecommendationService recommendationService) {
         this.favoriteRepository = favoriteRepository;
         this.tenantRepository = tenantRepository;
         this.propertyRepository = propertyRepository;
         this.propertyMapper = propertyMapper;
+        this.recommendationService = recommendationService;
     }
 
     @Transactional
@@ -45,6 +50,14 @@ public class FavoriteService {
                 .property(property)
                 .build();
         favoriteRepository.save(favorite);
+        
+        // Enregistrer l'interaction FAVORITE
+        try {
+            recommendationService.recordInteraction(tenant.getId(), propertyId, 
+                    UserInteraction.InteractionType.FAVORITE, null);
+        } catch (Exception e) {
+            // Ignorer les erreurs de tracking
+        }
     }
 
     @Transactional

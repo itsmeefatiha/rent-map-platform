@@ -76,5 +76,37 @@ export const messagesApi = {
     const response = await messagesAxios.get(`/messages/unread-count/${otherUserId}`);
     return response.data;
   },
+
+  sendFile: async (receiverId, file, content) => {
+    const formData = new FormData();
+    formData.append('receiverId', receiverId);
+    formData.append('file', file);
+    if (content) {
+      formData.append('content', content);
+    }
+    const response = await messagesAxios.post(`/messages/send-file`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  sendVoice: async (receiverId, audioBlob) => {
+    const formData = new FormData();
+    formData.append('receiverId', receiverId);
+    formData.append('file', audioBlob, 'voice-message.webm');
+    const response = await messagesAxios.post(`/messages/send-voice`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  addReaction: async (messageId, emoji) => {
+    const response = await messagesAxios.post(`/messages/${messageId}/reaction`, { emoji });
+    return response.data;
+  },
 };
 

@@ -36,6 +36,10 @@ public class PropertyDto {
     private Boolean hasFurnished;
     private Boolean petsAllowed;
     private String propertyType;
+    private String rentalPeriod; // MONTH, DAY
+    private List<PropertyCommentDto> comments;
+    private Double averageRating;
+    private Integer totalComments;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
