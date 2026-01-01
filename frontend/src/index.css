@@ -38,6 +38,111 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* RTL Support */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+
+  /* RTL spacing adjustments */
+  [dir="rtl"] .space-x-1 > * + * {
+    margin-right: 0.25rem;
+    margin-left: 0;
+  }
+
+  [dir="rtl"] .space-x-2 > * + * {
+    margin-right: 0.5rem;
+    margin-left: 0;
+  }
+
+  [dir="rtl"] .space-x-3 > * + * {
+    margin-right: 0.75rem;
+    margin-left: 0;
+  }
+
+  [dir="rtl"] .space-x-4 > * + * {
+    margin-right: 1rem;
+    margin-left: 0;
+  }
+
+  [dir="rtl"] .space-x-8 > * + * {
+    margin-right: 2rem;
+    margin-left: 0;
+  }
+
+  /* RTL padding adjustments */
+  [dir="rtl"] .pl-3 {
+    padding-right: 0.75rem;
+    padding-left: 0;
+  }
+
+  [dir="rtl"] .pl-10 {
+    padding-right: 2.5rem;
+    padding-left: 0;
+  }
+
+  [dir="rtl"] .pr-3 {
+    padding-left: 0.75rem;
+    padding-right: 0;
+  }
+
+  [dir="rtl"] .pr-4 {
+    padding-left: 1rem;
+    padding-right: 0;
+  }
+
+  /* RTL positioning */
+  [dir="rtl"] .left-0 {
+    right: 0;
+    left: auto;
+  }
+
+  [dir="rtl"] .right-0 {
+    left: 0;
+    right: auto;
+  }
+
+  /* RTL margin adjustments */
+  [dir="rtl"] .mr-2 {
+    margin-left: 0.5rem;
+    margin-right: 0;
+  }
+
+  [dir="rtl"] .ml-auto {
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  /* RTL text alignment */
+  [dir="rtl"] .text-left {
+    text-align: right;
+  }
+
+  [dir="rtl"] .text-right {
+    text-align: left;
+  }
+
+  /* RTL flex direction for specific cases */
+  [dir="rtl"] .flex-row-reverse {
+    flex-direction: row;
+  }
+
+  /* RTL dropdown menu positioning */
+  [dir="rtl"] .absolute.right-0 {
+    right: auto;
+    left: 0;
+  }
+
+  /* RTL text alignment for buttons */
+  [dir="rtl"] button.text-left,
+  [dir="rtl"] .text-left {
+    text-align: right;
+  }
+
+  /* RTL icon positioning */
+  [dir="rtl"] svg {
+    transform: none;
+  }
 }
 
 @layer components {
@@ -97,4 +202,24 @@
 
 .leaflet-popup-tip {
   @apply bg-surface dark:bg-surface-dark;
+}
+
+/* User Location Marker Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.user-location-marker div {
+  animation: pulse 2s infinite;
 }

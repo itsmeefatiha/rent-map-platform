@@ -3,6 +3,7 @@ package com.app.rentmap.repository;
 import com.app.rentmap.entity.Property;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +28,13 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     
     @Query("SELECT p FROM Property p WHERE p.availability <= CURRENT_DATE")
     Page<Property> findAvailableProperties(Pageable pageable);
+    
+    @EntityGraph(attributePaths = {"owner", "images"})
+    @Query("SELECT p FROM Property p")
+    List<Property> findAllWithRelations();
+    
+    @Query("SELECT COUNT(DISTINCT p.region) FROM Property p")
+    long countDistinctRegions();
 }
 
 

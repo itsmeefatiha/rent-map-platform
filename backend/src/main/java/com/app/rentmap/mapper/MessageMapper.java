@@ -11,5 +11,6 @@ public interface MessageMapper {
     @Mapping(target = "senderName", expression = "java(message.getSender().getFirstName() + \" \" + message.getSender().getLastName())")
     @Mapping(target = "receiverId", source = "receiver.id")
     @Mapping(target = "receiverName", expression = "java(message.getReceiver().getFirstName() + \" \" + message.getReceiver().getLastName())")
+    @Mapping(target = "reactions", ignore = true)
     MessageDto toDto(Message message);
 }

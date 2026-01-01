@@ -57,16 +57,25 @@ public class Property {
     private Boolean hasFurnished;
     private Boolean petsAllowed;
     private String propertyType; // APARTMENT, HOUSE, STUDIO, etc.
+    
+    @Column(nullable = true)
+    private String rentalPeriod; // MONTH, DAY
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private Owner owner;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<PropertyImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<PropertyComment> comments = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

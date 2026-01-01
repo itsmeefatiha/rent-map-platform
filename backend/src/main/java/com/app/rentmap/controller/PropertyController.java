@@ -2,8 +2,10 @@ package com.app.rentmap.controller;
 
 import com.app.rentmap.dto.PropertyCreateDto;
 import com.app.rentmap.dto.PropertyDto;
+import com.app.rentmap.entity.UserInteraction;
 import com.app.rentmap.service.FileStorageService;
 import com.app.rentmap.service.PropertyService;
+import com.app.rentmap.service.RecommendationService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,10 +26,13 @@ import java.util.List;
 public class PropertyController {
     private final PropertyService propertyService;
     private final FileStorageService fileStorageService;
+    private final RecommendationService recommendationService;
 
-    public PropertyController(PropertyService propertyService, FileStorageService fileStorageService) {
+    public PropertyController(PropertyService propertyService, FileStorageService fileStorageService,
+                            RecommendationService recommendationService) {
         this.propertyService = propertyService;
         this.fileStorageService = fileStorageService;
+        this.recommendationService = recommendationService;
     }
 
     @PostMapping("/upload-images")
@@ -57,9 +62,35 @@ public class PropertyController {
             @RequestParam(required = false) String region,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
         Pageable pageable = PageRequest.of(page, size);
         Page<PropertyDto> properties = propertyService.getAllProperties(region, maxPrice, pageable);
+        
+        // Enregistrer l'interaction SEARCH si l'utilisateur est un tenant
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TENANT"))) {
+            try {
+                String searchQuery = (region != null ? "region:" + region : "") + 
+                                   (maxPrice != null ? " maxPrice:" + maxPrice : "");
+                // Enregistrer pour chaque propriété dans les résultats
+                properties.getContent().forEach(property -> {
+                    try {
+                        recommendationService.recordInteractionByEmail(
+                            authentication.getName(),
+                            property.getId(),
+                            UserInteraction.InteractionType.SEARCH,
+                            searchQuery.isEmpty() ? "all" : searchQuery
+                        );
+                    } catch (Exception e) {
+                        // Ignorer les erreurs
+                    }
+                });
+            } catch (Exception e) {
+                // Ignorer les erreurs de tracking
+            }
+        }
+        
         return ResponseEntity.ok(properties);
     }
 
@@ -70,8 +101,24 @@ public class PropertyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long id) {
+    public ResponseEntity<PropertyDto> getPropertyById(@PathVariable Long id, Authentication authentication) {
         PropertyDto property = propertyService.getPropertyById(id);
+        
+        // Enregistrer l'interaction VIEW si l'utilisateur est un tenant
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TENANT"))) {
+            try {
+                recommendationService.recordInteractionByEmail(
+                    authentication.getName(), 
+                    id, 
+                    UserInteraction.InteractionType.VIEW, 
+                    null
+                );
+            } catch (Exception e) {
+                // Ignorer les erreurs de tracking pour ne pas affecter la réponse
+            }
+        }
+        
         return ResponseEntity.ok(property);
     }
 

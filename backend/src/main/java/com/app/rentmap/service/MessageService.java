@@ -2,11 +2,11 @@ package com.app.rentmap.service;
 
 import com.app.rentmap.dto.MessageDto;
 import com.app.rentmap.entity.Message;
+import com.app.rentmap.entity.MessageReaction;
 import com.app.rentmap.entity.User;
 import com.app.rentmap.mapper.MessageMapper;
+import com.app.rentmap.repository.MessageReactionRepository;
 import com.app.rentmap.repository.MessageRepository;
-import com.app.rentmap.repository.OwnerRepository;
-import com.app.rentmap.repository.TenantRepository;
 import com.app.rentmap.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,24 +21,26 @@ import java.util.stream.Collectors;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final OwnerRepository ownerRepository;
-    private final TenantRepository tenantRepository;
     private final MessageMapper messageMapper;
+    private final MessageReactionRepository messageReactionRepository;
 
     public MessageService(MessageRepository messageRepository,
                          UserRepository userRepository,
-                         OwnerRepository ownerRepository,
-                         TenantRepository tenantRepository,
-                         MessageMapper messageMapper) {
+                         MessageMapper messageMapper,
+                         MessageReactionRepository messageReactionRepository) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
-        this.ownerRepository = ownerRepository;
-        this.tenantRepository = tenantRepository;
         this.messageMapper = messageMapper;
+        this.messageReactionRepository = messageReactionRepository;
     }
 
     @Transactional
     public MessageDto sendMessage(String senderEmail, String senderRole, Long receiverId, String content) {
+        return sendMessage(senderEmail, senderRole, receiverId, content, null, "TEXT");
+    }
+
+    @Transactional
+    public MessageDto sendMessage(String senderEmail, String senderRole, Long receiverId, String content, String fileUrl, String messageType) {
         User sender = userRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + senderEmail));
         
@@ -48,7 +50,9 @@ public class MessageService {
         Message message = Message.builder()
                 .sender(sender)
                 .receiver(receiver)
-                .content(content)
+                .content(content != null ? content : "")
+                .fileUrl(fileUrl)
+                .messageType(messageType != null ? messageType : "TEXT")
                 .read(false)
                 .build();
         
@@ -63,7 +67,55 @@ public class MessageService {
                 .orElseThrow(() -> new RuntimeException("Other user not found"));
 
         List<Message> messages = messageRepository.findConversation(currentUser.getId(), otherUser.getId());
-        return messages.stream().map(messageMapper::toDto).collect(Collectors.toList());
+        return messages.stream().map(message -> {
+            MessageDto dto = messageMapper.toDto(message);
+            // Add reactions
+            Map<String, Long> reactions = getReactionsForMessage(message.getId());
+            dto.setReactions(reactions);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    public Map<String, Long> getReactionsForMessage(Long messageId) {
+        List<Object[]> reactionCounts = messageReactionRepository.countReactionsByEmoji(messageId);
+        Map<String, Long> reactions = new HashMap<>();
+        for (Object[] row : reactionCounts) {
+            reactions.put((String) row[0], (Long) row[1]);
+        }
+        return reactions;
+    }
+    
+    @Transactional
+    public void addReaction(String userEmail, Long messageId, String emoji) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userEmail));
+        
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+        
+        // Check if user already reacted with this emoji
+        messageReactionRepository.findByMessageIdAndUserId(messageId, user.getId())
+                .ifPresentOrElse(
+                    existingReaction -> {
+                        // If same emoji, remove it (toggle)
+                        if (existingReaction.getEmoji().equals(emoji)) {
+                            messageReactionRepository.delete(existingReaction);
+                        } else {
+                            // If different emoji, update it
+                            existingReaction.setEmoji(emoji);
+                            messageReactionRepository.save(existingReaction);
+                        }
+                    },
+                    () -> {
+                        // Create new reaction
+                        MessageReaction reaction = MessageReaction.builder()
+                                .message(message)
+                                .user(user)
+                                .emoji(emoji)
+                                .build();
+                        messageReactionRepository.save(reaction);
+                    }
+                );
     }
 
     @Transactional

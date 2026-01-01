@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { messagesApi } from '../api/messages';
 import { useAuth } from '../context/AuthContext';
 
 export const ChatDropdown = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState([]);
@@ -110,7 +112,7 @@ export const ChatDropdown = () => {
     const diff = now - date;
     const minutes = Math.floor(diff / 60000);
     
-    if (minutes < 1) return 'Just now';
+    if (minutes < 1) return t('common.justNow');
     if (minutes < 60) return `${minutes}m`;
     
     const hours = Math.floor(minutes / 60);
@@ -148,10 +150,10 @@ export const ChatDropdown = () => {
         <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 max-h-[600px] overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-600 to-indigo-600">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Messages</h3>
+              <h3 className="text-lg font-bold text-white">{t('chat.messages')}</h3>
               {unreadCount > 0 && (
                 <span className="bg-white/20 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                  {unreadCount} unread
+                  {unreadCount} {t('common.unread')}
                 </span>
               )}
             </div>
@@ -166,7 +168,7 @@ export const ChatDropdown = () => {
                 <svg className="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No conversations yet</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{t('chat.noConversations')}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">

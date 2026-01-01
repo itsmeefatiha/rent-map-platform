@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { notificationsApi } from '../api/notifications';
 import { useAuth } from '../context/AuthContext';
 
 export const NotificationsDropdown = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -92,14 +94,14 @@ export const NotificationsDropdown = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Notifications</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('notifications.title')}</h3>
             {notifications.length > 5 && (
               <Link
                 to="/notifications"
                 onClick={() => setIsOpen(false)}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
-                View all
+                {t('common.viewAll')}
               </Link>
             )}
           </div>
@@ -113,7 +115,7 @@ export const NotificationsDropdown = () => {
                 <svg className="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">No notifications</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{t('notifications.noNotifications')}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">

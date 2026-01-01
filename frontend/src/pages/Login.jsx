@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +20,7 @@ export const Login = () => {
       await login(email, password);
       navigate('/map');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || t('auth.loginFailed'));
     }
   };
 
@@ -32,10 +35,10 @@ export const Login = () => {
               </svg>
             </div>
             <h2 className="text-3xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
-              Welcome Back
+              {t('auth.welcomeBack')}
             </h2>
             <p className="text-text-secondary dark:text-text-secondary-dark">
-              Sign in to your account to continue
+              {t('auth.signInToContinue')}
             </p>
           </div>
 
@@ -52,7 +55,7 @@ export const Login = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                  Email Address
+                  {t('auth.email')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -67,7 +70,7 @@ export const Login = () => {
                     autoComplete="email"
                     required
                     className="input-field pl-10"
-                    placeholder="you@example.com"
+                    placeholder="ahmed.benali@example.ma"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -76,7 +79,7 @@ export const Login = () => {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-2">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -103,14 +106,14 @@ export const Login = () => {
               type="submit"
               className="btn-primary w-full"
             >
-              Sign In
+              {t('auth.signIn')}
             </button>
 
             <div className="text-center">
               <p className="text-sm text-text-secondary dark:text-text-secondary-dark">
-                Don't have an account?{' '}
+                {t('auth.dontHaveAccount')}{' '}
                 <Link to="/register" className="font-semibold text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary transition-colors">
-                  Sign up
+                  {t('auth.signUp')}
                 </Link>
               </p>
             </div>

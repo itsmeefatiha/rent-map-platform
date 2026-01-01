@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.Map;
 
 @Controller
 public class ChatController {
@@ -38,15 +39,23 @@ public class ChatController {
                     senderEmail,
                     senderRole,
                     chatMessage.getReceiverId(),
-                    chatMessage.getContent()
+                    chatMessage.getContent(),
+                    chatMessage.getFileUrl(),
+                    chatMessage.getMessageType() != null ? chatMessage.getMessageType() : "TEXT"
             );
+            
+            // Add reactions to messageDto
+            Map<String, Long> reactions = messageService.getReactionsForMessage(messageDto.getId());
+            messageDto.setReactions(reactions);
 
+            // Send to receiver
             messagingTemplate.convertAndSendToUser(
                 String.valueOf(chatMessage.getReceiverId()),
                 "/queue/messages",
                 messageDto
             );
 
+            // Send to sender so they get the saved message with ID (replaces temp message)
             messagingTemplate.convertAndSendToUser(
                 String.valueOf(messageDto.getSenderId()),
                 "/queue/messages",
@@ -89,6 +98,8 @@ public class ChatController {
     public static class ChatMessage {
         private String content;
         private Long receiverId;
+        private String fileUrl;
+        private String messageType;
 
         public String getContent() {
             return content;
@@ -104,6 +115,22 @@ public class ChatController {
 
         public void setReceiverId(Long receiverId) {
             this.receiverId = receiverId;
+        }
+
+        public String getFileUrl() {
+            return fileUrl;
+        }
+
+        public void setFileUrl(String fileUrl) {
+            this.fileUrl = fileUrl;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
         }
     }
 
