@@ -42,11 +42,6 @@ A full-featured web platform for publishing and discovering rental properties us
 
 ### Backend Setup
 
-1. Start PostgreSQL:
-```bash
-docker-compose up -d
-```
-
 2. Build and run:
 ```bash
 cd backend
