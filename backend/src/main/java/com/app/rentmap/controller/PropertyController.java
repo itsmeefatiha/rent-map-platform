@@ -129,5 +129,24 @@ public class PropertyController {
         List<PropertyDto> properties = propertyService.getPropertiesByOwner(email);
         return ResponseEntity.ok(properties);
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<PropertyDto> updateProperty(Authentication authentication,
+                                                      @PathVariable Long id,
+                                                      @Valid @RequestBody PropertyCreateDto dto) {
+        String email = authentication.getName();
+        PropertyDto property = propertyService.updateProperty(email, id, dto);
+        return ResponseEntity.ok(property);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<Void> deleteProperty(Authentication authentication,
+                                               @PathVariable Long id) {
+        String email = authentication.getName();
+        propertyService.deleteProperty(email, id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

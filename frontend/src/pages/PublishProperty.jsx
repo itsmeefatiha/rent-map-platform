@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -9,6 +9,9 @@ import { LocationButton } from '../components/LocationButton';
 
 export const PublishProperty = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = !!editId;
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -49,6 +52,60 @@ L.Icon.Default.mergeOptions({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [loadingProperty, setLoadingProperty] = useState(isEditMode);
+
+  // Charger la propriété si on est en mode édition
+  useEffect(() => {
+    const loadProperty = async () => {
+      if (isEditMode && editId) {
+        try {
+          setLoadingProperty(true);
+          const property = await propertiesApi.getById(editId);
+          
+          setFormData({
+            title: property.title || '',
+            description: property.description || '',
+            price: property.price?.toString() || '',
+            area: property.area?.toString() || '',
+            region: property.region || '',
+            availability: property.availability || '',
+            numberOfRooms: property.numberOfRooms?.toString() || '',
+            numberOfBedrooms: property.numberOfBedrooms?.toString() || '',
+            numberOfBathrooms: property.numberOfBathrooms?.toString() || '',
+            propertyType: property.propertyType || 'APARTMENT',
+            rentalPeriod: property.rentalPeriod || 'MONTH',
+            hasWifi: property.hasWifi || false,
+            hasParking: property.hasParking || false,
+            hasAirConditioning: property.hasAirConditioning || false,
+            hasHeating: property.hasHeating || false,
+            hasFurnished: property.hasFurnished || false,
+            petsAllowed: property.petsAllowed || false,
+          });
+          
+          if (property.latitude && property.longitude) {
+            setLatitude(property.latitude);
+            setLongitude(property.longitude);
+            setMarkerPosition([property.latitude, property.longitude]);
+            setMapCenter([property.latitude, property.longitude]);
+          }
+          
+          if (property.imageUrls && property.imageUrls.length > 0) {
+            const media = property.imageUrls.map(url => ({
+              url,
+              type: url.includes('.mp4') || url.includes('.mov') || url.includes('.webm') ? 'video' : 'image'
+            }));
+            setUploadedMedia(media);
+          }
+        } catch (err) {
+          setError(err.message || t('property.failedToLoad'));
+        } finally {
+          setLoadingProperty(false);
+        }
+      }
+    };
+    
+    loadProperty();
+  }, [isEditMode, editId, t]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -162,14 +219,14 @@ L.Icon.Default.mergeOptions({
       return;
     }
 
-    if (uploadedMedia.length === 0) {
+    if (!isEditMode && uploadedMedia.length === 0) {
       setError(t('property.pleaseUploadImage'));
       return;
     }
 
     setLoading(true);
     try {
-      await propertiesApi.create({
+      const propertyData = {
         ...formData,
         price: parseFloat(formData.price),
         area: parseFloat(formData.area),
@@ -180,10 +237,16 @@ L.Icon.Default.mergeOptions({
         numberOfBedrooms: formData.numberOfBedrooms ? parseInt(formData.numberOfBedrooms) : null,
         numberOfBathrooms: formData.numberOfBathrooms ? parseInt(formData.numberOfBathrooms) : null,
         imageUrls: uploadedMedia.map(m => m.url), // Backend still expects imageUrls
-      });
-      navigate('/');
+      };
+      
+      if (isEditMode && editId) {
+        await propertiesApi.update(editId, propertyData);
+      } else {
+        await propertiesApi.create(propertyData);
+      }
+      navigate('/my-properties');
     } catch (err) {
-      setError(err.response?.data?.message || t('property.failedToCreate'));
+      setError(err.response?.data?.message || (isEditMode ? t('property.failedToUpdate') : t('property.failedToCreate')));
     } finally {
       setLoading(false);
     }
@@ -208,16 +271,27 @@ L.Icon.Default.mergeOptions({
     setMarkerPosition(location);
   };
 
+  if (loadingProperty) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">{t('common.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="mb-6">
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
-              {t('property.publishYourProperty')}
+              {isEditMode ? t('property.editProperty') : t('property.publishYourProperty')}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              {t('property.fillDetails')}
+              {isEditMode ? t('property.editDetails') : t('property.fillDetails')}
             </p>
           </div>
         </div>

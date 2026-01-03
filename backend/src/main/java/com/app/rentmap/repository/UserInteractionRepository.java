@@ -62,5 +62,8 @@ public interface UserInteractionRepository extends JpaRepository<UserInteraction
            "GROUP BY ui.property.id " +
            "ORDER BY interactionCount DESC")
     List<Object[]> findPopularPropertyIds(@Param("since") LocalDateTime since);
+    
+    // Supprimer toutes les interactions d'une propriété
+    void deleteByPropertyId(Long propertyId);
 }
 

@@ -87,5 +87,24 @@ export const propertiesApi = {
       throw error;
     }
   },
+
+  update: async (id, data) => {
+    try {
+      const response = await axios.put(`${API_URL}/properties/${id}`, data);
+      return response.data;
+    } catch (error) {
+      handleError(error, 'update');
+      throw error;
+    }
+  },
+
+  delete: async (id) => {
+    try {
+      await axios.delete(`${API_URL}/properties/${id}`);
+    } catch (error) {
+      handleError(error, 'delete');
+      throw error;
+    }
+  },
 };
 
