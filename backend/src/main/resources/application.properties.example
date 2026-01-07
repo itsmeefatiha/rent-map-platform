@@ -1,0 +1,71 @@
+####################################
+# Application
+####################################
+spring.application.name=rent-map-platform
+server.port=8080
+
+####################################
+# Database Configuration (Docker)
+####################################
+spring.datasource.url=jdbc:postgresql://localhost:5432/rentmap
+spring.datasource.username=rentmap
+spring.datasource.password=rentmap123
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+####################################
+# JPA / Hibernate
+####################################
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+####################################
+# File Upload
+####################################
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+file.upload-dir=uploads
+
+####################################
+# Error Handling
+####################################
+server.error.include-message=always
+server.error.include-binding-errors=always
+
+####################################
+# JWT Configuration
+####################################
+# Replace with a secure random string (min 32 chars)
+jwt.secret=CHANGE_ME_TO_A_SECURE_RANDOM_SECRET
+jwt.expiration=86400000
+
+####################################
+# CORS
+####################################
+cors.allowed-origins=http://localhost:5173
+
+####################################
+# Swagger / OpenAPI
+####################################
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+
+####################################
+# Email Configuration (SMTP)
+####################################
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-email-app-password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+spring.mail.properties.mail.smtp.connectiontimeout=5000
+spring.mail.properties.mail.smtp.timeout=5000
+spring.mail.properties.mail.smtp.writetimeout=5000
+
+####################################
+# Frontend URL
+####################################
+app.frontend.url=http://localhost:5173

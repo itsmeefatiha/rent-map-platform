@@ -48,7 +48,12 @@ A full-featured web platform for publishing and discovering rental properties us
 docker-compose up -d
 ```
 
-2. Build and run:
+2. Configure application properties:
+   - Navigate to the `backend/src/main/resources` directory
+   - Rename `application.properties.example` to `application.properties`
+   - Note: The `application.properties` file is not included in the repository for security reasons. You must create it from the example file.
+
+3. Build and run:
 ```bash
 cd backend
 mvn clean install
@@ -74,7 +79,7 @@ Frontend runs on http://localhost:5173
 
 ## API Documentation
 
-Swagger UI available at: http://localhost:8080/swagger-ui.html
+Swagger UI available at: http://localhost:8080/swagger-ui/index.html
 
 ## Database
 
